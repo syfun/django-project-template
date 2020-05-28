@@ -12,25 +12,37 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+import environ
+
+# (seely/config/settings.py - 2 = interfun/)
+ROOT_DIR = environ.Path(__file__) - 2
+APPS_DIR = ROOT_DIR.path('apps')
+
+# Load operating system environment variables and then prepare to use them
+env = environ.Env()
+
+READ_DOT_ENV_FILE = env.bool('DJANGO_READ_DOT_ENV_FILE', default=False)
+if READ_DOT_ENV_FILE:
+    # OS environment variables take precedence over variables from .env
+    env.read_env(str(ROOT_DIR.path('.env')))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'rvkax7c)13)(a!kl@gpy*jlov2hxs0h27bah!qaijnp^c)n%h9'
+SECRET_KEY = env(
+    'DJANGO_SECRET_KEY', default='rvkax7c)13)(a!kl@gpy*jlov2hxs0h27bah!qaijnp^c)n%h9'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[])
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -74,12 +86,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': env.db('DATABASE_URL'),
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -103,9 +111,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = env('LANGUAGE_CODE', default='zh-hans')
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = env('DJANGO_TIME_ZONE', default='Asia/Shanghai')
 
 USE_I18N = True
 
@@ -113,18 +121,130 @@ USE_L10N = True
 
 USE_TZ = True
 
+LOCALE_PATHS = (
+    str(ROOT_DIR.path('locale')),
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = env('DJANGO_STATIC_URL', default='/static/')
 
-ASGI_APPLICATION = 'config.routing.application'
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+STATIC_ROOT = str(ROOT_DIR('staticfiles'))
+
+# https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+MEDIA_ROOT = str(APPS_DIR('media'))
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
+MEDIA_URL = env('DJANGO_MEDIA_URL', default='/media/')
+
+# Location of root django.contrib.admin URL, use {% url 'admin:index' %}
+ADMIN_URL = env('DJANGO_ADMIN_URL', default='admin/')
+
+LOG_LEVEL = env('LOG_LEVEL', default='INFO')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s]\t[%(process)d-%(thread)d]\t'
+                      '%(module)s:%(lineno)d\t[%(levelname)s]\t'
+                      '%(message)s'
         },
     },
+    'handlers': {
+        'console': {
+            'level': LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        # 'django': {
+        #     'handlers': ['console', ],
+        #     'level': LOG_LEVEL,
+        #     'propagate': True
+        # },
+        'django.request': {
+            'handlers': ['console', ],
+            'level': LOG_LEVEL,
+            'propagate': True
+        },
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': True
+        },
+        'apps': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': True
+        },
+    }
 }
+
+# Cache
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': env('REDIS_URL', default='redis://localhost:6379/0'),
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#             # Mimicing memcache behavior.
+#             # http://niwinz.github.io/django-redis/latest/#_memcached_exceptions_behavior
+#             'IGNORE_EXCEPTIONS': True,
+#         }
+#     }
+# }
+
+# fix 403 permission denied error
+# FILE_UPLOAD_PERMISSIONS = 0o644
+
+# s3
+# DEFAULT_FILE_STORAGE = env('DEFAULT_FILE_STORAGE', default='django.core.files.storage.FileSystemStorage')
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# AWS_AUTO_CREATE_BUCKET = True
+# AWS_IS_GZIPPED = True
+# AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='admin')
+# AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='123456')
+# AWS_QUERYSTRING_AUTH = True
+# AWS_DEFAULT_ACL = env('AWS_DEFAULT_ACL', default='private')
+# AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='test')
+# AWS_S3_SIGNATURE_VERSION = 's3v4'
+# AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='')
+# AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL', default='http://localhost:9030')
+# AWS_S3_MAX_AGE = env('AWS_S3_MAX_AGE', default=86400)
+# AWS_S3_OBJECT_PARAMETERS = {
+#     'CacheControl': f'max-age={AWS_S3_MAX_AGE}',
+# }
+
+THIRD_PARTY_APPS = [
+]
+
+# Apps specific for this project go here.
+LOCAL_APPS = [
+    # custom users app
+]
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
+# ENABLE_CELERY = env.bool('ENABLE_CELERY', False)
+#
+# if ENABLE_CELERY:
+#     INSTALLED_APPS += ['apps.taskapp.celery.CeleryConfig', 'django_celery_beat']
+#     # import tasks
+#     CELERY_IMPORTS = (
+#         # 'apps.example.tasks',
+#     )
