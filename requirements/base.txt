@@ -1,1 +1,7 @@
 django==3.0.6
+celery==4.4.2
+django-celery-beat==2.0.0
+django-redis==4.12.1
+redis==3.5.2
+
+django-model-utils==4.0.0
