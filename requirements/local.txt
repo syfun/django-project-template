@@ -2,6 +2,8 @@
 
 ipython
 flake8
-black==19.10b0
-
-psycopg2-binary==2.8.5
+black
+django-stubs
+pytest
+pytest-django
+psycopg2-binary

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+# export DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL:='INFO'}
+# export GUNICORN_WORKERS=${GUNICORN_WORKERS:=2}
+
+# gunicorn config.wsgi:app \
+#     --workers ${GUNICORN_WORKERS} \
+#     --worker-class gevent \
+#     --bind 0.0.0.0:8000 \
+#     --log-file - \
+#     --log-level ${DJANGO_LOG_LEVEL} \
+#     --worker-tmp-dir /dev/shm

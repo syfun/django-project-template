@@ -31,9 +31,7 @@ if READ_DOT_ENV_FILE:
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env(
-    'DJANGO_SECRET_KEY', default='rvkax7c)13)(a!kl@gpy*jlov2hxs0h27bah!qaijnp^c)n%h9'
-)
+SECRET_KEY = env('DJANGO_SECRET_KEY', default='rvkax7c)13)(a!kl@gpy*jlov2hxs0h27bah!qaijnp^c)n%h9')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG', default=False)
@@ -93,25 +91,17 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = env('LANGUAGE_CODE', default='zh-hans')
+LANGUAGE_CODE = env('DJANGO_LANGUAGE_CODE', default='zh-hans')
 
 TIME_ZONE = env('DJANGO_TIME_ZONE', default='Asia/Shanghai')
 
@@ -121,9 +111,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-LOCALE_PATHS = (
-    str(ROOT_DIR.path('locale')),
-)
+LOCALE_PATHS = (str(ROOT_DIR.path('locale')),)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -146,29 +134,22 @@ MEDIA_URL = env('DJANGO_MEDIA_URL', default='/media/')
 # Location of root django.contrib.admin URL, use {% url 'admin:index' %}
 ADMIN_URL = env('DJANGO_ADMIN_URL', default='admin/')
 
-LOG_LEVEL = env('LOG_LEVEL', default='INFO')
+LOG_LEVEL = env('DJANGO_LOG_LEVEL', default='INFO')
+DISABLE_EXISTING_LOGGERS = env.bool('DJANGO_DISABLE_EXISTING_LOGGERS', default=False)
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
+    'disable_existing_loggers': DISABLE_EXISTING_LOGGERS,
+    'filters': {'require_debug_false': {'()': 'django.utils.log.RequireDebugFalse'}},
     'formatters': {
         'verbose': {
             'format': '[%(asctime)s]\t[%(process)d-%(thread)d]\t'
-                      '%(module)s:%(lineno)d\t[%(levelname)s]\t'
-                      '%(message)s'
+            '%(module)s:%(lineno)d\t[%(levelname)s]\t'
+            '%(message)s'
         },
     },
     'handlers': {
-        'console': {
-            'level': LOG_LEVEL,
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
+        'console': {'level': LOG_LEVEL, 'class': 'logging.StreamHandler', 'formatter': 'verbose',},
     },
     'loggers': {
         # 'django': {
@@ -176,22 +157,10 @@ LOGGING = {
         #     'level': LOG_LEVEL,
         #     'propagate': True
         # },
-        'django.request': {
-            'handlers': ['console', ],
-            'level': LOG_LEVEL,
-            'propagate': True
-        },
-        'django.db.backends': {
-            'handlers': ['console'],
-            'level': LOG_LEVEL,
-            'propagate': True
-        },
-        'apps': {
-            'handlers': ['console'],
-            'level': LOG_LEVEL,
-            'propagate': True
-        },
-    }
+        'django.request': {'handlers': ['console',], 'level': LOG_LEVEL, 'propagate': True},
+        'django.db.backends': {'handlers': ['console'], 'level': LOG_LEVEL, 'propagate': True},
+        'apps': {'handlers': ['console'], 'level': LOG_LEVEL, 'propagate': True},
+    },
 }
 
 # Cache
@@ -229,8 +198,7 @@ LOGGING = {
 #     'CacheControl': f'max-age={AWS_S3_MAX_AGE}',
 # }
 
-THIRD_PARTY_APPS = [
-]
+THIRD_PARTY_APPS = []
 
 # Apps specific for this project go here.
 LOCAL_APPS = [
@@ -240,7 +208,7 @@ LOCAL_APPS = [
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-# ENABLE_CELERY = env.bool('ENABLE_CELERY', False)
+# ENABLE_CELERY = env.bool('DJANGO_ENABLE_CELERY', False)
 #
 # if ENABLE_CELERY:
 #     INSTALLED_APPS += ['apps.taskapp.celery.CeleryConfig', 'django_celery_beat']

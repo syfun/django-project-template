@@ -1,1 +1,1 @@
-# interfun
+# django project template
