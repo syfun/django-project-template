@@ -17,3 +17,17 @@ docker-build:
 docker-push:
 	docker push ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
 
+makemigrations:
+	python manage.py makemigrations
+
+migrate:
+	python manage.py migrate
+
+makemessages:
+	python manage.py makemessages -l zh_Hans
+
+compilemessages:
+	python manage.py compilemessages
+
+run:
+	python manage.py runserver
